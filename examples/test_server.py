@@ -20,8 +20,8 @@ async def main():
 
 loop = get_event_loop()
 
-client_keypair = SigningKey(b64decode(config['private'][:-8])[:32])
-server = SHSServer('localhost', 8008, client_keypair, loop=loop)
+server_keypair = SigningKey(b64decode(config['private'][:-8])[:32])
+server = SHSServer('localhost', 8008, server_keypair, loop=loop)
 server.on_connect(main)
 server.listen()
 
