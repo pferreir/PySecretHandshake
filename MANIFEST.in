@@ -1,0 +1,8 @@
+include *.rst
+include AUTHORS
+include LICENSE
+include README.rst
+include pytest.ini
+
+exclude examples
+recursive-exclude examples *.py

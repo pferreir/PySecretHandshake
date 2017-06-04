@@ -1,0 +1,7 @@
+*.egg-info
+.cache
+.eggs
+.coverage
+__pycache__
+*.pyc
+node_modules
