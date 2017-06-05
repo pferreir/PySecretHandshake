@@ -111,7 +111,7 @@ class SHSServerCrypto(SHSCryptoBase):
     def clean(self, new_ephemeral_key=None):
         super(SHSServerCrypto, self).clean(new_ephemeral_key=new_ephemeral_key)
         self.hello = None
-        self.local_lterm_shared = None
+        self.b_alice = None
 
 
 class SHSClientCrypto(SHSCryptoBase):
@@ -129,38 +129,37 @@ class SHSClientCrypto(SHSCryptoBase):
 
     def verify_server_challenge(self, data):
         """Verify the correctness of challenge sent from the server."""
-        # TODO: use super.verify_challenge and add extra logic
-        return super(SHSClientCrypto, self).verify_challenge(data)
-
-    def generate_client_auth(self):
-        """Generate box[K|a*b|a*B](H)"""
+        assert super(SHSClientCrypto, self).verify_challenge(data)
         curve_pkey = self.remote_pub_key.to_curve25519_public_key()
 
-        # remote_lterm_shared is (a * B)
-        remote_lterm_shared = crypto_scalarmult(bytes(self.local_ephemeral_key), bytes(curve_pkey))
-        self.remote_lterm_shared = remote_lterm_shared
-
+        # a_bob is (a * B)
+        a_bob = crypto_scalarmult(bytes(self.local_ephemeral_key), bytes(curve_pkey))
+        self.a_bob = a_bob
         # this shall be hash(K | a * b | a * B)
-        box_secret = hashlib.sha256(self.application_key + self.shared_secret + remote_lterm_shared).digest()
+        self.box_secret = hashlib.sha256(self.application_key + self.shared_secret + a_bob).digest()
 
         # and message_to_box will correspond to H = sign(A)[K | Bp | hash(a * b)] | Ap
         signed_message = self.local_key.sign(self.application_key + bytes(self.remote_pub_key) + self.shared_hash)
         message_to_box = signed_message.signature + bytes(self.local_key.verify_key)
-        self.client_auth = message_to_box
+        self.hello = message_to_box
+        return True
+
+    def generate_client_auth(self):
+        """Generate box[K|a*b|a*B](H)"""
 
         nonce = b"\x00" * 24
         # return box(K | a * b | a * B)[H]
-        return crypto_box_afternm(message_to_box, nonce, box_secret)
+        return crypto_box_afternm(self.hello, nonce, self.box_secret)
 
     def verify_server_accept(self, data):
         """Verify that the server's accept message is sane"""
         curve_lkey = self.local_key.to_curve25519_private_key()
-        # local_lterm_shared is (A * b)
-        local_lterm_shared = crypto_scalarmult(bytes(curve_lkey), self.remote_ephemeral_key)
-        self.local_lterm_shared = local_lterm_shared
+        # b_alice is (A * b)
+        b_alice = crypto_scalarmult(bytes(curve_lkey), self.remote_ephemeral_key)
+        self.b_alice = b_alice
         # this is hash(K | a * b | a * B | A * b)
-        self.box_secret = hashlib.sha256(self.application_key + self.shared_secret + self.remote_lterm_shared +
-                                         local_lterm_shared).digest()
+        self.box_secret = hashlib.sha256(self.application_key + self.shared_secret + self.a_bob +
+                                         b_alice).digest()
 
         nonce = b"\x00" * 24
 
@@ -172,10 +171,10 @@ class SHSClientCrypto(SHSCryptoBase):
 
         # we should have received sign(B)[K | H | hash(a * b)]
         # let's see if that signature can verify the reconstructed data on our side
-        self.remote_pub_key.verify(self.application_key + self.client_auth + self.shared_hash, signature)
+        self.remote_pub_key.verify(self.application_key + self.hello + self.shared_hash, signature)
         return True
 
     def clean(self, new_ephemeral_key=None):
         super(SHSClientCrypto, self).clean(new_ephemeral_key=new_ephemeral_key)
-        self.remote_lterm_shared = None
-        self.local_lterm_shared = None
+        self.a_bob = None
+        self.b_alice = None
