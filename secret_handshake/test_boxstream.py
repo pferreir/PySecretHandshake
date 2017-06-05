@@ -37,6 +37,7 @@ class AsyncBuffer(BytesIO):
     """Just a BytesIO with an async read method."""
     async def read(self, n=None):
         return super(AsyncBuffer, self).read(n)
+    readexactly = read
 
 
 @pytest.mark.asyncio

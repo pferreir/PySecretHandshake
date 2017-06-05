@@ -1,4 +1,6 @@
 import struct
+from asyncio import IncompleteReadError
+
 from nacl.secret import SecretBox
 
 from .util import split_chunks, inc_nonce
@@ -32,9 +34,9 @@ class UnboxStream(object):
         self.closed = False
 
     async def read(self):
-        data = await self.reader.read(HEADER_LENGTH)
-
-        if not data:
+        try:
+            data = await self.reader.readexactly(HEADER_LENGTH)
+        except IncompleteReadError:
             self.closed = True
             return None
 
@@ -49,7 +51,7 @@ class UnboxStream(object):
         length = struct.unpack('>H', header[:2])[0]
         mac = header[2:]
 
-        data = await self.reader.read(length)
+        data = await self.reader.readexactly(length)
 
         body = box.decrypt(mac + data, inc_nonce(self.nonce))
 

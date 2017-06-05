@@ -59,13 +59,13 @@ class SHSServer(SHSSocket):
         self.crypto = SHSServerCrypto(server_kp, application_key=application_key)
 
     async def _handshake(self, reader, writer):
-        data = await reader.read(64)
+        data = await reader.readexactly(64)
         if not self.crypto.verify_challenge(data):
             raise SHSClientException('Client challenge is not valid')
 
         writer.write(self.crypto.generate_challenge())
 
-        data = await reader.read(112)
+        data = await reader.readexactly(112)
         if not self.crypto.verify_client_auth(data):
             raise SHSClientException('Client auth is not valid')
 
@@ -99,13 +99,13 @@ class SHSClient(SHSSocket):
     async def _handshake(self, reader, writer):
         writer.write(self.crypto.generate_challenge())
 
-        data = await reader.read(64)
+        data = await reader.readexactly(64)
         if not self.crypto.verify_server_challenge(data):
             raise SHSClientException('Server challenge is not valid')
 
         writer.write(self.crypto.generate_client_auth())
 
-        data = await reader.read(80)
+        data = await reader.readexactly(80)
         if not self.crypto.verify_server_accept(data):
             raise SHSClientException('Server accept is not valid')
 
