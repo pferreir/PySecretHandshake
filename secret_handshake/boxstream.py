@@ -1,24 +1,11 @@
 import struct
 from nacl.secret import SecretBox
 
-from .util import bytes_to_long, long_to_bytes
+from .util import split_chunks, inc_nonce
 
-NONCE_SIZE = 24
 HEADER_LENGTH = 2 + 16 + 16
 MAX_SEGMENT_SIZE = 4 * 1024
 TERMINATION_HEADER = (b'\x00' * 18)
-MAX_NONCE = (8 * NONCE_SIZE)
-
-# TODO: Implement handling of messages > 4k
-
-
-def inc_nonce(nonce):
-    num = bytes_to_long(nonce) + 1
-    if num > 2 ** MAX_NONCE:
-        num = 0
-    bnum = long_to_bytes(num)
-    bnum = b'\x00' * (NONCE_SIZE - len(bnum)) + bnum
-    return bnum
 
 
 def get_stream_pair(reader, writer, **kwargs):
@@ -88,14 +75,15 @@ class BoxStream(object):
 
         # XXX: This nonce logic is almost for sure wrong
 
-        body = self.box.encrypt(data, inc_nonce(self.nonce))[24:]
-        header = struct.pack('>H', len(body) - 16) + body[:16]
+        for chunk in split_chunks(data, MAX_SEGMENT_SIZE):
+            body = self.box.encrypt(chunk, inc_nonce(self.nonce))[24:]
+            header = struct.pack('>H', len(body) - 16) + body[:16]
 
-        hdrbox = self.box.encrypt(header, self.nonce)[24:]
-        self.writer.write(hdrbox)
+            hdrbox = self.box.encrypt(header, self.nonce)[24:]
+            self.writer.write(hdrbox)
 
-        self.nonce = inc_nonce(inc_nonce(self.nonce))
-        self.writer.write(body[16:])
+            self.nonce = inc_nonce(inc_nonce(self.nonce))
+            self.writer.write(body[16:])
 
     def close(self):
         self.writer.write(self.box.encrypt(b'\x00' * 18, self.nonce)[24:])

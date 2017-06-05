@@ -23,7 +23,7 @@ import pytest
 from io import BytesIO
 
 from .test_crypto import (CLIENT_ENCRYPT_KEY, CLIENT_ENCRYPT_NONCE)
-from secret_handshake.boxstream import BoxStream, UnboxStream
+from secret_handshake.boxstream import BoxStream, UnboxStream, HEADER_LENGTH
 
 MESSAGE_1 = (b'\xcev\xedE\x06l\x02\x13\xc8\x17V\xfa\x8bZ?\x88B%O\xb0L\x9f\x8e\x8c0y\x1dv\xc0\xc9\xf6\x9d\xc2\xdf\xdb'
              b'\xee\x9d')
@@ -72,3 +72,24 @@ async def test_unboxstream():
     assert not unbox_stream.closed
     assert [msg async for msg in unbox_stream] == [b'foo', b'foo', b'bar']
     assert unbox_stream.closed
+
+
+@pytest.mark.asyncio
+async def test_long_packets():
+    data_size = 6 * 1024
+    data = bytes(n % 256 for n in range(data_size))
+
+    # box 6K buffer
+    buffer = AsyncBuffer()
+    box_stream = BoxStream(buffer, CLIENT_ENCRYPT_KEY, CLIENT_ENCRYPT_NONCE)
+    box_stream.write(data)
+    # the size overhead corresponds to the two packet headers
+    assert buffer.tell() == data_size + (HEADER_LENGTH * 2)
+    buffer.seek(0)
+
+    # now let's unbox it and check whether it's OK
+    unbox_stream = UnboxStream(buffer, CLIENT_ENCRYPT_KEY, CLIENT_ENCRYPT_NONCE)
+    first_packet = await unbox_stream.read()
+    assert first_packet == data[:4096]
+    second_packet = await unbox_stream.read()
+    assert second_packet == data[4096:]
