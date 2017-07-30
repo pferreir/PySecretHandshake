@@ -40,7 +40,7 @@ class SHSSocket(object):
     async def read(self):
         return await self.read_stream.read()
 
-    async def disconnect(self):
+    def disconnect(self):
         self.writer.close()
 
     async def __aiter__(self):
