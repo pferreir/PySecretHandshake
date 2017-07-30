@@ -74,9 +74,6 @@ class BoxStream(object):
         self.nonce = nonce
 
     def write(self, data):
-
-        # XXX: This nonce logic is almost for sure wrong
-
         for chunk in split_chunks(data, MAX_SEGMENT_SIZE):
             body = self.box.encrypt(chunk, inc_nonce(self.nonce))[24:]
             header = struct.pack('>H', len(body) - 16) + body[:16]
