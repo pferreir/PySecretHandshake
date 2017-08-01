@@ -58,12 +58,14 @@ class UnboxStream(object):
         self.nonce = inc_nonce(inc_nonce(self.nonce))
         return body
 
-    async def __aiter__(self):
-        while True:
-            data = await self.read()
-            if data is None:
-                return
-            yield data
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        data = await self.read()
+        if data is None:
+            raise StopAsyncIteration
+        return data
 
 
 class BoxStream(object):
