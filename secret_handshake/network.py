@@ -109,9 +109,9 @@ class SHSClient(SHSSocket):
         if not self.crypto.verify_server_accept(data):
             raise SHSClientException('Server accept is not valid')
 
-    def connect(self):
-        reader, writer = self.loop.run_until_complete(open_connection(self.host, self.port, loop=self.loop))
-        self.loop.run_until_complete(self._handshake(reader, writer))
+    async def connect(self):
+        reader, writer = await open_connection(self.host, self.port, loop=self.loop)
+        await self._handshake(reader, writer)
 
         keys = self.crypto.get_box_keys()
         self.crypto.clean()
@@ -119,4 +119,4 @@ class SHSClient(SHSSocket):
         self.read_stream, self.write_stream = get_stream_pair(reader, writer, **keys)
         self.writer = writer
         if self._on_connect:
-            ensure_future(self._on_connect(), loop=self.loop)
+            await self._on_connect()
