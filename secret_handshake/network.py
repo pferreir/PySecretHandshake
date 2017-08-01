@@ -43,9 +43,15 @@ class SHSSocket(object):
     def disconnect(self):
         self.writer.close()
 
-    async def __aiter__(self):
-        async for msg in self.read_stream:
-            yield msg
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        msg = self.read_stream
+        if msg:
+            return msg
+        else:
+            raise StopAsyncIteration
 
     def on_connect(self, cb):
         self._on_connect = cb
