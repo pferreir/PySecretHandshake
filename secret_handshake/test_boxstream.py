@@ -24,6 +24,7 @@ from io import BytesIO
 
 from .test_crypto import (CLIENT_ENCRYPT_KEY, CLIENT_ENCRYPT_NONCE)
 from secret_handshake.boxstream import BoxStream, UnboxStream, HEADER_LENGTH
+from secret_handshake.util import async_comprehend
 
 MESSAGE_1 = (b'\xcev\xedE\x06l\x02\x13\xc8\x17V\xfa\x8bZ?\x88B%O\xb0L\x9f\x8e\x8c0y\x1dv\xc0\xc9\xf6\x9d\xc2\xdf\xdb'
              b'\xee\x9d')
@@ -71,7 +72,7 @@ async def test_unboxstream():
 
     unbox_stream = UnboxStream(buffer, CLIENT_ENCRYPT_KEY, CLIENT_ENCRYPT_NONCE)
     assert not unbox_stream.closed
-    assert [msg async for msg in unbox_stream] == [b'foo', b'foo', b'bar']
+    assert (await async_comprehend(unbox_stream)) == [b'foo', b'foo', b'bar']
     assert unbox_stream.closed
 
 

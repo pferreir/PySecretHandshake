@@ -4,6 +4,14 @@ NONCE_SIZE = 24
 MAX_NONCE = (8 * NONCE_SIZE)
 
 
+async def async_comprehend(generator):
+    """Emulate ``[elem async for elem in generator]``."""
+    results = []
+    async for msg in generator:
+        results.append(msg)
+    return results
+
+
 def inc_nonce(nonce):
     num = bytes_to_long(nonce) + 1
     if num > 2 ** MAX_NONCE:

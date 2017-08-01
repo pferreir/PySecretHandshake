@@ -21,6 +21,8 @@
 
 from asyncio import open_connection, start_server, ensure_future
 
+from async_generator import async_generator, yield_
+
 from .boxstream import get_stream_pair
 from .crypto import SHSClientCrypto, SHSServerCrypto
 
@@ -43,9 +45,10 @@ class SHSSocket(object):
     def disconnect(self):
         self.writer.close()
 
+    @async_generator
     async def __aiter__(self):
         async for msg in self.read_stream:
-            yield msg
+            await yield_(msg)
 
     def on_connect(self, cb):
         self._on_connect = cb
