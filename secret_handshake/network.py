@@ -35,6 +35,7 @@ class SHSDuplexStream(object):
     def __init__(self):
         self.write_stream = None
         self.read_stream = None
+        self.is_connected = False
 
     def write(self, data):
         self.write_stream.write(data)
@@ -45,6 +46,7 @@ class SHSDuplexStream(object):
     def close(self):
         self.write_stream.close()
         self.read_stream.close()
+        self.is_connected = False
 
     @async_generator
     async def __aiter__(self):
@@ -148,6 +150,7 @@ class SHSClient(SHSDuplexStream, SHSEndpoint):
 
         self.read_stream, self.write_stream = get_stream_pair(reader, writer, **keys)
         self.writer = writer
+        self.is_connected = True
         if self._on_connect:
             await self._on_connect()
 
