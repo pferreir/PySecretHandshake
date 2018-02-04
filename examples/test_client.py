@@ -14,15 +14,14 @@ with open(os.path.expanduser('~/.ssb/secret')) as f:
 
 
 async def main():
+    server_pub_key = b64decode(config['public'][:-8])
+    client = SHSClient('localhost', 8008, SigningKey.generate(), server_pub_key)
+    await client.open()
+
     async for msg in client:
         print(msg)
 
 
 loop = get_event_loop()
-
-server_pub_key = b64decode(config['public'][:-8])
-client = SHSClient('localhost', 8008, SigningKey.generate(), server_pub_key, loop=loop)
-client.connect()
 loop.run_until_complete(main())
-
 loop.close()

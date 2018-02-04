@@ -13,17 +13,18 @@ with open(os.path.expanduser('~/.ssb/secret')) as f:
     config = yaml.load(f)
 
 
-async def main():
-    async for msg in server:
+async def _on_connect(conn):
+    async for msg in conn:
         print(msg)
 
 
+async def main():
+    server_keypair = SigningKey(b64decode(config['private'][:-8])[:32])
+    server = SHSServer('localhost', 8008, server_keypair)
+    server.on_connect(_on_connect)
+    await server.listen()
+
 loop = get_event_loop()
-
-server_keypair = SigningKey(b64decode(config['private'][:-8])[:32])
-server = SHSServer('localhost', 8008, server_keypair, loop=loop)
-server.on_connect(main)
-server.listen()
-
+loop.run_until_complete(main())
 loop.run_forever()
 loop.close()

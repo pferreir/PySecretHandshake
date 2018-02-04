@@ -20,11 +20,10 @@
 
 
 import pytest
-from io import BytesIO
 
 from .test_crypto import (CLIENT_ENCRYPT_KEY, CLIENT_ENCRYPT_NONCE)
 from secret_handshake.boxstream import BoxStream, UnboxStream, HEADER_LENGTH
-from secret_handshake.util import async_comprehend
+from secret_handshake.util import AsyncBuffer, async_comprehend
 
 MESSAGE_1 = (b'\xcev\xedE\x06l\x02\x13\xc8\x17V\xfa\x8bZ?\x88B%O\xb0L\x9f\x8e\x8c0y\x1dv\xc0\xc9\xf6\x9d\xc2\xdf\xdb'
              b'\xee\x9d')
@@ -32,13 +31,6 @@ MESSAGE_2 = b"\x141\xd63\x13d\xd1\xecZ\x9b\xd0\xd4\x03\xcdR?'\xaa.\x89I\x92I\xf9
 MESSAGE_3 = (b'\xcbYY\xf1\x0f\xa5O\x13r\xa6"\x15\xc5\x9d\r.*\x0b\x92\x10m\xa6(\x0c\x0c\xc61\x80j\x81)\x800\xed\xda'
              b'\xad\xa1')
 MESSAGE_CLOSED = b'\xb1\x14hU\'\xb5M\xa6"\x03\x9duy\xa1\xd4evW,\xdcE\x18\xe4+ C4\xe8h\x96\xed\xc5\x94\x80'
-
-
-class AsyncBuffer(BytesIO):
-    """Just a BytesIO with an async read method."""
-    async def read(self, n=None):
-        return super(AsyncBuffer, self).read(n)
-    readexactly = read
 
 
 @pytest.mark.asyncio
