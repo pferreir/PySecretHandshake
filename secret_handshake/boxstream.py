@@ -2,10 +2,9 @@ import struct
 from asyncio import IncompleteReadError
 
 from async_generator import async_generator, yield_
-
 from nacl.secret import SecretBox
 
-from .util import split_chunks, inc_nonce
+from .util import inc_nonce, split_chunks
 
 HEADER_LENGTH = 2 + 16 + 16
 MAX_SEGMENT_SIZE = 4 * 1024

@@ -23,7 +23,8 @@ import hashlib
 import hmac
 from base64 import b64decode
 
-from nacl.bindings import crypto_scalarmult, crypto_box_afternm, crypto_box_open_afternm
+from nacl.bindings import (crypto_box_afternm, crypto_box_open_afternm,
+                           crypto_scalarmult)
 from nacl.exceptions import CryptoError
 from nacl.public import PrivateKey
 from nacl.signing import VerifyKey

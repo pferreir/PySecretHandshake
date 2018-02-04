@@ -1,13 +1,11 @@
 import os
-import yaml
-
 from asyncio import get_event_loop
 from base64 import b64decode
 
+import yaml
 from nacl.signing import SigningKey
 
 from secret_handshake import SHSServer
-
 
 with open(os.path.expanduser('~/.ssb/secret')) as f:
     config = yaml.load(f)

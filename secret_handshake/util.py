@@ -22,7 +22,6 @@
 import struct
 from io import BytesIO
 
-
 NONCE_SIZE = 24
 MAX_NONCE = (8 * NONCE_SIZE)
 
