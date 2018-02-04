@@ -28,12 +28,13 @@ history = open('CHANGES.rst').read()
 
 tests_require = [
     'check-manifest>=0.25',
-    'coverage>=4.0',
+    'coverage==4.4.1',
     'isort>=4.2.2',
-    'pep257>=0.7.0',
-    'pytest-cov>=1.8.0',
-    'pytest>=3.1.1',
-    'pytest-asyncio==0.6.0'
+    'pydocstyle==2.1.1',
+    'pytest-cov==2.5.1',
+    'pytest==3.4.0',
+    'pytest-asyncio==0.6.0',
+    'pytest-mock==1.6.3'
 ]
 
 extras_require = {
