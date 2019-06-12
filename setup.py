@@ -27,27 +27,27 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
-    'check-manifest>=0.25',
-    'coverage==4.4.1',
-    'isort>=4.2.2',
-    'pydocstyle==2.1.1',
-    'pytest-cov==2.5.1',
-    'pytest==3.4.0',
-    'pytest-asyncio==0.6.0',
-    'pytest-mock==1.6.3'
+    'check-manifest>=0.39',
+    'coverage==4.5.3',
+    'isort>=4.3.20',
+    'pydocstyle==3.0.0',
+    'pytest-cov==2.7.1',
+    'pytest==4.6.3',
+    'pytest-asyncio==0.10.0',
+    'pytest-mock==1.10.4'
 ]
 
 extras_require = {
     'docs': [
-        'Sphinx>=1.6.2',
+        'Sphinx>=2.1.1',
     ],
     'tests': tests_require,
 }
 extras_require['all'] = sum((lst for lst in extras_require.values()), [])
 
 install_requires = [
-    'async-generator==1.8',
-    'pynacl==1.1.2'
+    'async-generator==1.10',
+    'pynacl==1.3.0'
 ]
 
 setup_requires = [
@@ -58,7 +58,7 @@ packages = find_packages()
 
 setup(
     name='secret-handshake',
-    version='0.1.0.dev3',
+    version='0.1.0.dev4',
     description=__doc__,
     long_description=(readme + '\n\n' + history),
     license='MIT',
