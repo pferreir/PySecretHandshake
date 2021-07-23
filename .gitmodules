@@ -1,0 +1,3 @@
+[submodule "secret_handshake/test-secret-handshake"]
+	path = secret_handshake/test-secret-handshake
+	url = https://github.com/auditdrivencrypto/test-secret-handshake.git
