@@ -180,6 +180,13 @@ epub_exclude_files = ['search.html']
 
 # -- Extension configuration -------------------------------------------------
 
+# -- Options for autodoc extension -------------------------------------------
+
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True
+}
+
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.

@@ -10,6 +10,8 @@ Welcome to PySecretHandshake's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   reference/index
+
 
 
 Indices and tables
