@@ -8,6 +8,8 @@ python:
 install:
     - pip install .[tests]
     - pip install coveralls
-script: pytest
+script:
+    - pytest
+    - make -C docs html
 after_success:
   - coveralls
